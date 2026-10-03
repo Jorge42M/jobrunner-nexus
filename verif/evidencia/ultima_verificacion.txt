@@ -1,0 +1,136 @@
+########## Verificación Nexus — 2026-10-03 03:01:53 UTC
+Commit: f302905
+Sistema: Linux 6.18.44-fc-v64 x86_64
+
+########## 1/3 Construcción
+==> Comprobando Python 3.8 o superior
+    3.11.15
+==> Comprobando que sqlite3 está disponible
+    SQLite 3.45.1
+==> Compilando src/ (advertencias = error)
+==> Construcción correcta. Ejecuta:  ./nexus serve
+
+########## 2/3 Pruebas automatizadas
+test_tc013_limite_y_cancelar_en_cola (verif.tests.test_runner.TestConcurrency.test_tc013_limite_y_cancelar_en_cola)
+TC-013: con límite 1 el segundo trabajo espera QUEUED y puede cancelarse sin ejecutarse. ... ok
+test_cancelar_trabajo_terminado_no_cambia (verif.tests.test_runner.TestRunner.test_cancelar_trabajo_terminado_no_cambia) ... ok
+test_tc006_exito_codigo_cero (verif.tests.test_runner.TestRunner.test_tc006_exito_codigo_cero)
+TC-006: un comando correcto termina SUCCEEDED con código 0 y se captura stdout. ... ok
+test_tc007_proceso_separado (verif.tests.test_runner.TestRunner.test_tc007_proceso_separado)
+TC-007: el trabajo corre en un proceso distinto al del servicio. ... ok
+test_tc008_codigo_distinto_de_cero (verif.tests.test_runner.TestRunner.test_tc008_codigo_distinto_de_cero)
+TC-008: un código de salida != 0 deja el trabajo FAILED con ese código. ... ok
+test_tc009_comando_inexistente (verif.tests.test_runner.TestRunner.test_tc009_comando_inexistente)
+TC-009: un comando que no existe falla con 127 y el runner sigue vivo. ... ok
+test_tc009b_inexistente_con_path_problematico (verif.tests.test_runner.TestRunner.test_tc009b_inexistente_con_path_problematico)
+TC-009: aunque el PATH tenga carpetas sin permiso o archivos no ... ok
+test_tc009c_ruta_sin_permiso_de_ejecucion (verif.tests.test_runner.TestRunner.test_tc009c_ruta_sin_permiso_de_ejecucion)
+TC-009: una ruta que existe pero no es ejecutable falla con 126. ... ok
+test_tc010_comando_invalido_rechazado (verif.tests.test_runner.TestRunner.test_tc010_comando_invalido_rechazado)
+TC-010: comandos vacíos o mal formados se rechazan sin crear trabajo. ... ok
+test_tc011_cancelar_en_ejecucion_sigterm (verif.tests.test_runner.TestRunner.test_tc011_cancelar_en_ejecucion_sigterm)
+TC-011: cancelar un trabajo RUNNING envía SIGTERM; queda CANCELED con -15. ... ok
+test_tc012_sigkill_si_ignora_sigterm (verif.tests.test_runner.TestRunner.test_tc012_sigkill_si_ignora_sigterm)
+TC-012: si el proceso ignora SIGTERM, tras el plazo se envía SIGKILL (-9). ... ok
+test_tc014_flujo_completo (verif.tests.test_service.TestService.test_tc014_flujo_completo)
+TC-014: submit -> status -> list -> output a través del socket. ... ok
+test_tc015_peticiones_invalidas_no_tumban_el_servicio (verif.tests.test_service.TestService.test_tc015_peticiones_invalidas_no_tumban_el_servicio)
+TC-015: JSON roto, operaciones e ids inválidos devuelven error y el servicio sigue. ... ok
+test_tc016_cancelar_por_socket (verif.tests.test_service.TestService.test_tc016_cancelar_por_socket)
+TC-016: cancelar a través del socket termina el proceso. ... ok
+test_tc017_apagado_sin_huerfanos (verif.tests.test_service.TestService.test_tc017_apagado_sin_huerfanos)
+TC-017: al detener el servicio no quedan procesos hijos vivos. ... ok
+test_tc001_transiciones_validas (verif.tests.test_states.TestStates.test_tc001_transiciones_validas)
+TC-001: las transiciones del modelo están permitidas. ... ok
+test_tc002_estados_finales_no_cambian (verif.tests.test_states.TestStates.test_tc002_estados_finales_no_cambian)
+TC-002: desde un estado final no se puede pasar a ningún otro. ... ok
+test_filtrar_por_estado (verif.tests.test_store.TestStore.test_filtrar_por_estado) ... ok
+test_tc003_ids_unicos (verif.tests.test_store.TestStore.test_tc003_ids_unicos)
+TC-003: cada trabajo recibe un identificador único y queda QUEUED. ... ok
+test_tc004_transicion_invalida_rechazada (verif.tests.test_store.TestStore.test_tc004_transicion_invalida_rechazada)
+TC-004: una transición inválida se rechaza y no altera la base. ... ok
+test_tc005_recuperacion_tras_reinicio (verif.tests.test_store.TestStore.test_tc005_recuperacion_tras_reinicio)
+TC-005: un trabajo RUNNING de una ejecución anterior pasa a FAILED. ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 5.972s
+
+OK
+
+########## 3/3 Prueba de humo con el servicio real
+El servicio responde (pid 612).
+
+$ ./nexus submit echo hola desde nexus
+Trabajo enviado. ID: 1 (estado QUEUED)
+
+$ ./nexus wait 1
+Trabajo #1 terminó: SUCCEEDED, código de salida 0
+
+$ ./nexus output 1
+----- stdout (#1) -----
+hola desde nexus
+----- stderr (#1) -----
+
+
+$ ./nexus submit ls /directorio/que/no/existe
+Trabajo enviado. ID: 2 (estado QUEUED)
+
+$ ./nexus wait 2
+Trabajo #2 terminó: FAILED, código de salida 2
+
+$ ./nexus submit comando_que_no_existe
+Trabajo enviado. ID: 3 (estado QUEUED)
+
+$ ./nexus wait 3
+Trabajo #3 terminó: FAILED, código de salida 127
+
+$ ./nexus submit "echo 'comillas sin cerrar"   (se espera un error)
+Error: sintaxis inválida: No closing quotation
+
+$ ./nexus submit sleep 30
+Trabajo enviado. ID: 4 (estado QUEUED)
+
+$ ./nexus cancel 4
+Cancelación solicitada para #4 (se envió SIGTERM).
+
+$ ./nexus wait 4
+Trabajo #4 terminó: CANCELED, código de salida -15
+
+$ ./nexus list
+ID   ESTADO     PID     CÓDIGO  COMANDO
+1    SUCCEEDED  634     0       echo 'hola desde nexus'
+2    FAILED     648     2       ls /directorio/que/no/existe
+3    FAILED     -       127     comando_que_no_existe
+4    CANCELED   674     -15     sleep 30
+
+$ ./nexus status 4
+Trabajo #4
+  comando     : sleep 30
+  estado      : CANCELED
+  pid         : 674
+  código      : -15
+  detalle     : terminado por la señal SIGTERM (15)
+  creado      : 2026-10-03T03:02:00.472+00:00
+  iniciado    : 2026-10-03T03:02:00.558+00:00
+  terminado   : 2026-10-03T03:02:00.760+00:00
+  bitácora:
+    2026-10-03T03:02:00.472+00:00  SUBMITTED (sleep 30)
+    2026-10-03T03:02:00.559+00:00  QUEUED->RUNNING (pid 674)
+    2026-10-03T03:02:00.758+00:00  CANCEL_REQUESTED (SIGTERM al grupo 674)
+    2026-10-03T03:02:00.760+00:00  RUNNING->CANCELED (terminado por la señal SIGTERM (15))
+
+Comprobando estados finales esperados...
+
+$ ./nexus ping
+El servicio responde (pid 612).
+El servicio sigue vivo después de las peticiones inválidas.
+
+Deteniendo el servicio con SIGTERM (pid 612)...
+Código de salida del servicio: 0
+--- registro del servicio ---
+[nexus] servicio iniciado (pid 612). Socket: /tmp/tmp.vskcBy74mG/nexus.sock. Concurrencia máxima: 2
+[nexus] presiona Ctrl+C para detenerlo.
+[nexus] recibida señal SIGTERM, apagando...
+[nexus] servicio detenido.
+
+########## RESULTADO: VERIFICACIÓN EXITOSA

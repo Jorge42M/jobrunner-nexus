@@ -1,0 +1,5 @@
+# Los scripts deben tener finales de línea de Linux (LF) aunque se clone en Windows;
+# con CRLF bash falla con "bad interpreter" o "$'\r': command not found".
+*.sh   text eol=lf
+*.py   text eol=lf
+nexus  text eol=lf
