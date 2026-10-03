@@ -1,6 +1,24 @@
-node_modules/
+# Python
 __pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Datos de ejecución de Nexus (base de datos, socket, salidas)
+nexus-data/
+*.db
+*.db-wal
+*.db-shm
+*.sock
+
+# Editores y sistema
+.vscode/
+.idea/
+.DS_Store
+.env
+
+# Otros
+node_modules/
 *.class
 *.exe
-.env
-.vscode/
