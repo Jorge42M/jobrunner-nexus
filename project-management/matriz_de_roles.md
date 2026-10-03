@@ -11,17 +11,14 @@ Dado que el proyecto se desarrolla en modalidad de trabajo individual, la matriz
 
 ## Asignación de responsabilidades — Hito 1 (Avance 1)
 
-Notación RACI: **R** = lo realiza, **A** = aprueba / rinde cuentas, **C** = se consulta, **I** = se informa.
+Notación RACI: **R** = lo realiza, **A** = aprueba / rinde cuentas, **I** = se informa.
 
-| Entregable | Issue | Jorge (R/A) | Asistente de IA (C) | Profesor (I) |
-| :--------- | :---- | :---------: | :-----------------: | :----------: |
-| Núcleo local (`src/nexus/`) | #4 | R, A | C | I |
-| ADR-001 a ADR-004 | #1, #2, #3, #9 | R, A | C | I |
-| README, arquitectura y modelo de estados | #6 | R, A | C | I |
-| Casos de prueba y matriz de trazabilidad | #5 | R, A | C | I |
-| Script de verificación y evidencia | #7 | R, A | C | I |
-| Registro de uso de IA | #8 | R, A | — | I |
-| Exposición en la Technical Review 1 | — | R, A | — | I |
-
-El uso del asistente de IA se documenta en [`docs/registro_uso_ia.md`](../docs/registro_uso_ia.md).
-Toda salida de la IA es revisada, ejecutada y aprobada por el responsable antes de integrarse.
+| Entregable | Issue | Jorge (R/A) | Profesor (I) |
+| :--------- | :---- | :---------: | :----------: |
+| Núcleo local (`src/nexus/`) | #4 | R, A | I |
+| ADR-001 a ADR-004 | #1, #2, #3, #9 | R, A | I |
+| README, arquitectura y modelo de estados | #6 | R, A | I |
+| Casos de prueba y matriz de trazabilidad | #5 | R, A | I |
+| Script de verificación y evidencia | #7 | R, A | I |
+| Registro de uso de IA | #8 | R, A | I |
+| Exposición en la Technical Review 1 | — | R, A | I |
